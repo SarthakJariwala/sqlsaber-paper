@@ -1,0 +1,10 @@
+[project]
+name = "sqlsaber-bench"
+version = "0.1.0"
+description = "Running evaluations for sqlsaber"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "sqlsaber>=0.37.0",
+    "streamlit",
+]
