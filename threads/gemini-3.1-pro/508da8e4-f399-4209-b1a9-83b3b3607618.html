@@ -1,0 +1,727 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Which of the three segments—SME, LAM and KAM—has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?
+
+Context: Increase or Decrease = consumption for 2013 - consumption for 2012; Percentage of Increase = (Increase or Decrease / consumption for 2013) * 100%; The first 4 strings of the Date values in the yearmonth table can represent year</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+  <link id="hljs-theme" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/languages/sql.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <script>
+    (function() {
+      const saved = localStorage.getItem('sqlsaber-theme');
+      if (saved === 'light') document.documentElement.setAttribute('data-theme', 'light');
+    })();
+  </script>
+  <style>
+    :root {
+      --bg-primary: #0d1117;
+      --bg-secondary: #161b22;
+      --bg-tertiary: #21262d;
+      --border-color: #30363d;
+      --text-primary: #e6edf3;
+      --text-secondary: #8b949e;
+      --text-muted: #6e7681;
+      --accent-blue: #58a6ff;
+      --accent-green: #3fb950;
+      --accent-amber: #d29922;
+      --accent-red: #f85149;
+      --accent-purple: #a371f7;
+      --font-sans: 'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: 'IBM Plex Mono', 'SF Mono', Consolas, monospace;
+    }
+    [data-theme="light"] {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f6f8fa;
+      --bg-tertiary: #eaeef2;
+      --border-color: #d0d7de;
+      --text-primary: #1f2328;
+      --text-secondary: #59636e;
+      --text-muted: #8c959f;
+      --accent-blue: #0969da;
+      --accent-green: #1a7f37;
+      --accent-amber: #9a6700;
+      --accent-red: #d1242f;
+      --accent-purple: #8250df;
+    }
+    * { box-sizing: border-box; }
+    html { font-size: 15px; }
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      margin: 0;
+      padding: 2rem 1rem;
+    }
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    header {
+      border-bottom: 1px solid var(--border-color);
+      padding-bottom: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1rem;
+    }
+    .logo svg {
+      width: 28px;
+      height: 28px;
+    }
+    .logo span {
+      font-family: var(--font-mono);
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      letter-spacing: 0.02em;
+    }
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 600;
+      margin: 0 0 0.75rem 0;
+      color: var(--text-primary);
+    }
+    .thread-id {
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      background: var(--bg-tertiary);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      display: inline-block;
+      margin-bottom: 1rem;
+    }
+    .meta-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0.75rem;
+    }
+    .meta-item {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+    }
+    .meta-label {
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+    .meta-value {
+      font-size: 0.9rem;
+      color: var(--text-primary);
+      font-weight: 500;
+    }
+    .turn {
+      margin-bottom: 1.5rem;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border-color);
+    }
+    .turn-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+    }
+    .turn.user .turn-header {
+      background: linear-gradient(135deg, rgba(88,166,255,0.15), rgba(88,166,255,0.05));
+      color: var(--accent-blue);
+      border-bottom: 1px solid rgba(88,166,255,0.2);
+    }
+    .turn.assistant .turn-header {
+      background: linear-gradient(135deg, rgba(63,185,80,0.15), rgba(63,185,80,0.05));
+      color: var(--accent-green);
+      border-bottom: 1px solid rgba(63,185,80,0.2);
+    }
+    .turn-content {
+      padding: 1rem 1.25rem;
+      background: var(--bg-secondary);
+    }
+    .turn.user .turn-content {
+      font-size: 1rem;
+      white-space: pre-wrap;
+    }
+    .markdown-content {
+      font-size: 0.95rem;
+    }
+    .markdown-content h1, .markdown-content h2, .markdown-content h3 {
+      color: var(--text-primary);
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+    }
+    .markdown-content h1 { font-size: 1.4rem; }
+    .markdown-content h2 { font-size: 1.2rem; }
+    .markdown-content h3 { font-size: 1.05rem; }
+    .markdown-content p { margin: 0.75rem 0; }
+    .markdown-content ul, .markdown-content ol {
+      margin: 0.75rem 0;
+      padding-left: 1.5rem;
+    }
+    .markdown-content li { margin: 0.25rem 0; }
+    .markdown-content code {
+      font-family: var(--font-mono);
+      background: var(--bg-tertiary);
+      padding: 0.15rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.85em;
+    }
+    .markdown-content pre {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 1rem;
+      overflow-x: auto;
+      margin: 1rem 0;
+    }
+    .markdown-content pre code {
+      background: none;
+      padding: 0;
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .markdown-content a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
+    .markdown-content a:hover { text-decoration: underline; }
+    .markdown-content blockquote {
+      border-left: 3px solid var(--accent-purple);
+      margin: 1rem 0;
+      padding-left: 1rem;
+      color: var(--text-secondary);
+    }
+    .tool-section {
+      margin-top: 1rem;
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      overflow: hidden;
+    }
+    .tool-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.6rem 1rem;
+      background: var(--bg-tertiary);
+      cursor: pointer;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      border: none;
+      width: 100%;
+      text-align: left;
+    }
+    .tool-header:hover { background: var(--bg-primary); }
+    .tool-icon {
+      color: var(--accent-amber);
+    }
+    .tool-name {
+      font-family: var(--font-mono);
+      color: var(--accent-amber);
+      font-weight: 500;
+    }
+    .tool-body {
+      padding: 1rem;
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+    }
+    details.tool > summary {
+      list-style: none;
+    }
+    details.tool > summary::-webkit-details-marker {
+      display: none;
+    }
+    details.tool > summary::before {
+      content: '▸';
+      margin-right: 0.5rem;
+      transition: transform 0.2s;
+      display: inline-block;
+    }
+    details.tool[open] > summary::before {
+      transform: rotate(90deg);
+    }
+    .table-wrapper {
+      overflow-x: auto;
+      margin: 0.5rem 0;
+    }
+    .sql-results {
+      width: 100%;
+      border-collapse: collapse;
+      font-family: var(--font-mono);
+      font-size: 0.8rem;
+    }
+    .sql-results th {
+      background: var(--bg-tertiary);
+      color: var(--accent-blue);
+      font-weight: 600;
+      text-align: left;
+      padding: 0.6rem 0.75rem;
+      border-bottom: 2px solid var(--accent-blue);
+      white-space: nowrap;
+    }
+    .sql-results td {
+      padding: 0.5rem 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-primary);
+    }
+    .sql-results tr:hover td {
+      background: var(--bg-tertiary);
+    }
+    .sql-results tr:last-child td {
+      border-bottom: none;
+    }
+    .result-count {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin: 0 0 0.5rem 0;
+      font-family: var(--font-mono);
+    }
+    .sql-error {
+      background: rgba(248, 81, 73, 0.1);
+      border: 1px solid rgba(248, 81, 73, 0.3);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+      color: var(--accent-red);
+      font-size: 0.9rem;
+    }
+    .sql-query {
+      margin-bottom: 0.75rem;
+    }
+    .sql-query pre {
+      margin: 0;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.75rem 1rem;
+    }
+    .sql-query code {
+      font-family: var(--font-mono);
+      font-size: 0.85rem;
+      line-height: 1.5;
+    }
+    .schema-table {
+      margin-bottom: 1.5rem;
+      padding-bottom: 1rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+    .schema-table:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+    }
+    .table-name {
+      color: var(--accent-purple);
+      font-family: var(--font-mono);
+      font-size: 1rem;
+      margin: 0 0 0.5rem 0;
+    }
+    .table-comment {
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+      margin: 0 0 0.75rem 0;
+      font-style: italic;
+    }
+    .key-info {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin: 0.5rem 0 0 0;
+    }
+    .key-info strong {
+      color: var(--accent-amber);
+    }
+    .key-list {
+      margin: 0.25rem 0 0 1.25rem;
+      padding: 0;
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+    }
+    .key-list li {
+      margin: 0.15rem 0;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+    footer {
+      margin-top: 3rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid var(--border-color);
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+    }
+    footer a { color: var(--accent-blue); text-decoration: none; }
+    footer a:hover { text-decoration: underline; }
+    .header-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+    .theme-toggle {
+      background: var(--bg-tertiary);
+      border: 1px solid var(--border-color);
+      border-radius: 6px;
+      padding: 0.5rem;
+      cursor: pointer;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.2s, color 0.2s;
+    }
+    .theme-toggle:hover {
+      background: var(--bg-secondary);
+      color: var(--text-primary);
+    }
+    .theme-toggle svg {
+      width: 18px;
+      height: 18px;
+    }
+    .icon-sun { display: none; }
+    .icon-moon { display: block; }
+    [data-theme="light"] .icon-sun { display: block; }
+    [data-theme="light"] .icon-moon { display: none; }
+    @media (max-width: 600px) {
+      html { font-size: 14px; }
+      body { padding: 1rem 0.75rem; }
+      .meta-grid { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+
+<body>
+<div class="container">
+  <header>
+    <div class="header-row">
+      <div class="logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 2L2 7l10 5 10-5-10-5z"/>
+          <path d="M2 17l10 5 10-5"/>
+          <path d="M2 12l10 5 10-5"/>
+        </svg>
+        <span>SQLsaber</span>
+      </div>
+      <button class="theme-toggle" id="theme-toggle" aria-label="Toggle theme">
+        <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+        </svg>
+        <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="5"/>
+          <line x1="12" y1="1" x2="12" y2="3"/>
+          <line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/>
+          <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/>
+          <line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/>
+          <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      </button>
+    </div>
+    <h1>Which of the three segments—SME, LAM and KAM—has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?
+
+Context: Increase or Decrease = consumption for 2013 - consumption for 2012; Percentage of Increase = (Increase or Decrease / consumption for 2013) * 100%; The first 4 strings of the Date values in the yearmonth table can represent year</h1>
+    <code class="thread-id">508da8e4-f399-4209-b1a9-83b3b3607618</code>
+    <div class="meta-grid">
+      <div class="meta-item">
+        <div class="meta-label">Database</div>
+        <div class="meta-value">debit_card_specializing</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Model</div>
+        <div class="meta-value">gemini-3.1-pro-preview</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Created</div>
+        <div class="meta-value">2026-03-11 20:55:57</div>
+      </div>
+      <div class="meta-item">
+        <div class="meta-label">Last Activity</div>
+        <div class="meta-value">2026-03-11 20:55:57</div>
+      </div>
+    </div>
+  </header>
+  <main>
+<section class="turn user">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+      <circle cx="12" cy="7" r="4"/>
+    </svg>
+    User
+  </div>
+  <div class="turn-content">Which of the three segments—SME, LAM and KAM—has the biggest and lowest percentage increases in consumption paid in EUR between 2012 and 2013?
+
+Context: Increase or Decrease = consumption for 2013 - consumption for 2012; Percentage of Increase = (Increase or Decrease / consumption for 2013) * 100%; The first 4 strings of the Date values in the yearmonth table can represent year</div>
+</section>
+<section class="turn assistant">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+      <path d="M12 2a7 7 0 0 1 7 7h-7V2z"/>
+    </svg>
+    Assistant
+  </div>
+  <div class="turn-content">
+    <div class="markdown-content" data-markdown></div>
+    <details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">search_knowledge</span>
+  </summary>
+  <div class="tool-body"><p class="result-count">No results</p></div>
+</details>
+  </div>
+</section>
+<section class="turn assistant">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+      <path d="M12 2a7 7 0 0 1 7 7h-7V2z"/>
+    </svg>
+    Assistant
+  </div>
+  <div class="turn-content">
+    <div class="markdown-content" data-markdown></div>
+    <details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">list_tables</span>
+  </summary>
+  <div class="tool-body"><p class="result-count">Database Tables (5 total)</p><div class="table-wrapper"><table class="sql-results"><thead><tr><th>Schema</th><th>Table Name</th><th>Type</th></tr></thead><tbody><tr><td>main</td><td>customers</td><td>table</td></tr><tr><td>main</td><td>gasstations</td><td>table</td></tr><tr><td>main</td><td>products</td><td>table</td></tr><tr><td>main</td><td>transactions_1k</td><td>table</td></tr><tr><td>main</td><td>yearmonth</td><td>table</td></tr></tbody></table></div></div>
+</details>
+  </div>
+</section>
+<section class="turn assistant">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+      <path d="M12 2a7 7 0 0 1 7 7h-7V2z"/>
+    </svg>
+    Assistant
+  </div>
+  <div class="turn-content">
+    <div class="markdown-content" data-markdown></div>
+    <details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">introspect_schema</span>
+  </summary>
+  <div class="tool-body"><p class="result-count">1 table(s) introspected</p><div class="schema-table"><h4 class="table-name">main.customers</h4><div class="table-wrapper"><table class="sql-results schema-columns"><thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>Comment</th></tr></thead><tbody><tr><td>CustomerID</td><td>INTEGER</td><td>✗</td><td>—</td><td></td></tr><tr><td>Segment</td><td>TEXT</td><td>✓</td><td>—</td><td></td></tr><tr><td>Currency</td><td>TEXT</td><td>✓</td><td>—</td><td></td></tr></tbody></table></div><p class="key-info"><strong>Primary Keys:</strong> CustomerID</p></div></div>
+</details>
+<details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">introspect_schema</span>
+  </summary>
+  <div class="tool-body"><p class="result-count">1 table(s) introspected</p><div class="schema-table"><h4 class="table-name">main.transactions_1k</h4><div class="table-wrapper"><table class="sql-results schema-columns"><thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>Comment</th></tr></thead><tbody><tr><td>TransactionID</td><td>INTEGER</td><td>✓</td><td>—</td><td></td></tr><tr><td>Date</td><td>DATE</td><td>✓</td><td>—</td><td></td></tr><tr><td>Time</td><td>TEXT</td><td>✓</td><td>—</td><td></td></tr><tr><td>CustomerID</td><td>INTEGER</td><td>✓</td><td>—</td><td></td></tr><tr><td>CardID</td><td>INTEGER</td><td>✓</td><td>—</td><td></td></tr><tr><td>GasStationID</td><td>INTEGER</td><td>✓</td><td>—</td><td></td></tr><tr><td>ProductID</td><td>INTEGER</td><td>✓</td><td>—</td><td></td></tr><tr><td>Amount</td><td>INTEGER</td><td>✓</td><td>—</td><td></td></tr><tr><td>Price</td><td>REAL</td><td>✓</td><td>—</td><td></td></tr></tbody></table></div><p class="key-info"><strong>Primary Keys:</strong> TransactionID</p></div></div>
+</details>
+<details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">introspect_schema</span>
+  </summary>
+  <div class="tool-body"><p class="result-count">1 table(s) introspected</p><div class="schema-table"><h4 class="table-name">main.yearmonth</h4><div class="table-wrapper"><table class="sql-results schema-columns"><thead><tr><th>Column</th><th>Type</th><th>Nullable</th><th>Default</th><th>Comment</th></tr></thead><tbody><tr><td>CustomerID</td><td>INTEGER</td><td>✗</td><td>—</td><td></td></tr><tr><td>Date</td><td>TEXT</td><td>✗</td><td>—</td><td></td></tr><tr><td>Consumption</td><td>REAL</td><td>✓</td><td>—</td><td></td></tr></tbody></table></div><p class="key-info"><strong>Primary Keys:</strong> CustomerID, Date</p><p class="key-info"><strong>Foreign Keys:</strong></p><ul class="key-list"><li>CustomerID -&gt; main.customers.None</li><li>CustomerID -&gt; main.customers.None</li></ul></div></div>
+</details>
+  </div>
+</section>
+<section class="turn assistant">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+      <path d="M12 2a7 7 0 0 1 7 7h-7V2z"/>
+    </svg>
+    Assistant
+  </div>
+  <div class="turn-content">
+    <div class="markdown-content" data-markdown></div>
+    <details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">execute_sql</span>
+  </summary>
+  <div class="tool-body"><div class="sql-query"><pre><code class="language-sql">SELECT
+  c.Segment,
+  SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2012&#x27; THEN y.Consumption ELSE 0 END) AS Cons2012,
+  SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2013&#x27; THEN y.Consumption ELSE 0 END) AS Cons2013
+FROM yearmonth y
+JOIN customers c ON y.CustomerID = c.CustomerID
+WHERE c.Currency = &#x27;EUR&#x27;
+  AND c.Segment IN (&#x27;SME&#x27;, &#x27;LAM&#x27;, &#x27;KAM&#x27;)
+GROUP BY c.Segment;</code></pre></div><p class="result-count">3 row(s) returned</p><div class="table-wrapper"><table class="sql-results"><thead><tr><th>Segment</th><th>Cons2012</th><th>Cons2013</th></tr></thead><tbody><tr><td>KAM</td><td>646663.61</td><td>4224041.47</td></tr><tr><td>LAM</td><td>676212.68</td><td>4326606.13</td></tr><tr><td>SME</td><td>869537.52</td><td>7258151.96</td></tr></tbody></table></div></div>
+</details>
+  </div>
+</section>
+<section class="turn assistant">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+      <path d="M12 2a7 7 0 0 1 7 7h-7V2z"/>
+    </svg>
+    Assistant
+  </div>
+  <div class="turn-content">
+    <div class="markdown-content" data-markdown></div>
+    <details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">execute_sql</span>
+  </summary>
+  <div class="tool-body"><div class="sql-query"><pre><code class="language-sql">SELECT
+  c.Segment,
+  SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2012&#x27; THEN y.Consumption ELSE 0 END) AS Cons2012,
+  SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2013&#x27; THEN y.Consumption ELSE 0 END) AS Cons2013,
+  (SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2013&#x27; THEN y.Consumption ELSE 0 END) - SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2012&#x27; THEN y.Consumption ELSE 0 END)) / SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2013&#x27; THEN y.Consumption ELSE 0 END) * 100 AS PctIncrease
+FROM yearmonth y
+JOIN customers c ON y.CustomerID = c.CustomerID
+WHERE c.Currency = &#x27;EUR&#x27;
+  AND c.Segment IN (&#x27;SME&#x27;, &#x27;LAM&#x27;, &#x27;KAM&#x27;)
+GROUP BY c.Segment
+ORDER BY PctIncrease DESC;</code></pre></div><p class="result-count">3 row(s) returned</p><div class="table-wrapper"><table class="sql-results"><thead><tr><th>Segment</th><th>Cons2012</th><th>Cons2013</th><th>PctIncrease</th></tr></thead><tbody><tr><td>SME</td><td>869537.52</td><td>7258151.96</td><td>88.01984961472203</td></tr><tr><td>KAM</td><td>646663.61</td><td>4224041.47</td><td>84.69087923040681</td></tr><tr><td>LAM</td><td>676212.68</td><td>4326606.13</td><td>84.37082878168066</td></tr></tbody></table></div></div>
+</details>
+  </div>
+</section>
+<section class="turn assistant">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+      <path d="M12 2a7 7 0 0 1 7 7h-7V2z"/>
+    </svg>
+    Assistant
+  </div>
+  <div class="turn-content">
+    <div class="markdown-content" data-markdown></div>
+    <details class="tool" open>
+  <summary class="tool-header">
+    <span class="tool-icon">⚡</span>
+    <span class="tool-name">execute_sql</span>
+  </summary>
+  <div class="tool-body"><div class="sql-query"><pre><code class="language-sql">SELECT Date FROM yearmonth LIMIT 5;</code></pre></div><p class="result-count">5 row(s) returned</p><div class="table-wrapper"><table class="sql-results"><thead><tr><th>Date</th></tr></thead><tbody><tr><td>201112</td></tr><tr><td>201112</td></tr><tr><td>201112</td></tr><tr><td>201112</td></tr><tr><td>201112</td></tr></tbody></table></div></div>
+</details>
+  </div>
+</section>
+<section class="turn assistant">
+  <div class="turn-header">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+      <path d="M12 2a7 7 0 0 1 7 7h-7V2z"/>
+    </svg>
+    Assistant
+  </div>
+  <div class="turn-content">
+    <div class="markdown-content" data-markdown>&lt;analysis&gt;
+- **Parse the Request:** The user wants to identify which of three customer segments (SME, LAM, KAM) saw the highest and lowest percentage increases in consumption paid in EUR between the years 2012 and 2013. 
+- **Extract Key Constraints &amp; Formulas:**
+  - Segments to consider: SME, LAM, KAM
+  - Currency: EUR
+  - Date range: 2012 and 2013 (first 4 characters of the `Date` string)
+  - Formula: `((Consumption 2013 - Consumption 2012) / Consumption 2013) * 100%` (This is explicitly specified by the user, noting that it divides by 2013&#x27;s consumption rather than the typical base year of 2012).
+- **Identify Relevant Tables &amp; Columns:** 
+  - `customers`: Contains `CustomerID`, `Segment`, and `Currency`.
+  - `yearmonth`: Contains `CustomerID`, `Date` (in &#x27;YYYYMM&#x27; format), and `Consumption`.
+- **Plan the Exploration Approach:**
+  1. Inspect the tables to ensure the relationships and data types make sense.
+  2. Join `yearmonth` and `customers` on `CustomerID`.
+  3. Filter for `Currency = &#x27;EUR&#x27;` and `Segment IN (&#x27;SME&#x27;, &#x27;LAM&#x27;, &#x27;KAM&#x27;)`.
+  4. Use conditional aggregation (`SUM(CASE WHEN...)`) to calculate the total consumption in 2012 and 2013 for each segment.
+  5. Apply the user&#x27;s specific formula to calculate the percentage increase.
+  6. Order the results to find the biggest and lowest values.
+&lt;/analysis&gt;
+
+I have executed the query based on your criteria. Here are the steps and the SQL code used to find the result:
+
+```sql
+SELECT
+  c.Segment,
+  SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2012&#x27; THEN y.Consumption ELSE 0 END) AS Cons2012,
+  SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2013&#x27; THEN y.Consumption ELSE 0 END) AS Cons2013,
+  (SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2013&#x27; THEN y.Consumption ELSE 0 END) - 
+   SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2012&#x27; THEN y.Consumption ELSE 0 END)) / 
+   SUM(CASE WHEN SUBSTR(y.Date, 1, 4) = &#x27;2013&#x27; THEN y.Consumption ELSE 0 END) * 100 AS PctIncrease
+FROM yearmonth y
+JOIN customers c ON y.CustomerID = c.CustomerID
+WHERE c.Currency = &#x27;EUR&#x27;
+  AND c.Segment IN (&#x27;SME&#x27;, &#x27;LAM&#x27;, &#x27;KAM&#x27;)
+GROUP BY c.Segment
+ORDER BY PctIncrease DESC;
+```
+
+### Explanation of the Query
+- I joined the `yearmonth` consumption data with the `customers` table to link each customer&#x27;s segment and currency.
+- I filtered the records specifically for the EUR currency and the three segments requested.
+- I used `SUBSTR(y.Date, 1, 4)` to extract just the year part of the &#x27;YYYYMM&#x27; date string, summing up the corresponding consumption for 2012 and 2013 independently.
+- Finally, I applied your specific formula `(Increase / Consumption 2013) * 100%` to generate the percentage increase.
+
+### Results
+Based on the data calculations:
+1. **SME**:
+   - 2012 Consumption: ~869,537 
+   - 2013 Consumption: ~7,258,151 
+   - Percentage Increase: **88.02%**
+2. **KAM**:
+   - 2012 Consumption: ~646,663
+   - 2013 Consumption: ~4,224,041
+   - Percentage Increase: **84.69%**
+3. **LAM**:
+   - 2012 Consumption: ~676,212
+   - 2013 Consumption: ~4,326,606
+   - Percentage Increase: **84.37%**
+
+**Conclusion:**
+The **SME** segment has the **biggest percentage increase** (88.02%), while the **LAM** segment has the **lowest percentage increase** (84.37%).</div>
+    
+  </div>
+</section>
+  </main>
+  <footer>
+    Exported from <a href="https://github.com/SarthakJariwala/sqlsaber">SQLsaber</a>
+  </footer>
+</div>
+<script>
+document.querySelectorAll('[data-markdown]').forEach(el => {
+  const raw = el.textContent;
+  el.innerHTML = marked.parse(raw);
+});
+hljs.highlightAll();
+
+// Theme toggle
+const toggle = document.getElementById('theme-toggle');
+const hljsTheme = document.getElementById('hljs-theme');
+function setTheme(theme) {
+  if (theme === 'light') {
+    document.documentElement.setAttribute('data-theme', 'light');
+    hljsTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    hljsTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github-dark.min.css';
+  }
+  localStorage.setItem('sqlsaber-theme', theme);
+}
+toggle.addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  setTheme(current === 'light' ? 'dark' : 'light');
+});
+// Apply saved theme on load for hljs
+if (localStorage.getItem('sqlsaber-theme') === 'light') {
+  hljsTheme.href = 'https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/github.min.css';
+}
+</script>
+</body>
+</html>
